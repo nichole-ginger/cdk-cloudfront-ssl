@@ -4,4 +4,4 @@ import * as cdk from '@aws-cdk/core';
 import { SslCdkStack } from '../lib/ssl-cdk-stack';
 
 const app = new cdk.App();
-new SslCdkStack(app, 'SslCdkStack');
+new SslCdkStack(app);
