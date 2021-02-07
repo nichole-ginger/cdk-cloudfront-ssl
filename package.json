@@ -23,6 +23,8 @@
   "dependencies": {
     "@aws-cdk/aws-certificatemanager": "^1.88.0",
     "@aws-cdk/aws-cloudfront": "^1.88.0",
+    "@aws-cdk/aws-route53": "^1.88.0",
+    "@aws-cdk/aws-route53-targets": "^1.88.0",
     "@aws-cdk/aws-ssm": "^1.88.0",
     "@aws-cdk/core": "1.86.0",
     "source-map-support": "^0.5.16"

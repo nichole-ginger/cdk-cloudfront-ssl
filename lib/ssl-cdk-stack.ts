@@ -5,16 +5,19 @@ import * as s3 from '@aws-cdk/aws-s3'
 import * as ssm from '@aws-cdk/aws-ssm';
 import { CloudFrontWebDistribution } from '@aws-cdk/aws-cloudfront'
 import * as cloudfront from '@aws-cdk/aws-cloudfront';
-import { bucketRef } from './myconstants';
+import { bucketRef, account } from './myconstants';
+import * as route53 from '@aws-cdk/aws-route53';
+import * as targets from '@aws-cdk/aws-route53-targets';
 
 
 const domainName = "nichole.is";
 const bucket = bucketRef;
 
 export class SslCdkStack extends cdk.Stack {
-  constructor(scope: cdk.Construct) {
+  constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, "CertificateStack", {
-      env: { region: "us-east-1" },
+      env: { region: "us-east-1",
+            account: account, },
     });
 
     const certificate = new cm.Certificate(this, "CustomDomainCertificate", {
@@ -61,12 +64,27 @@ export class SslCdkStack extends cdk.Stack {
         },
         originConfigs: [
           {
-            s3OriginSource: {
-              s3BucketSource: sourceBucket,
+            customOriginSource: {
+              domainName: 'sendgrid.net',
             },
             behaviors: [{ isDefaultBehavior: true }],
           },
         ],
       });
+
+      // Route53 alias record for the CloudFront distribution
+      const zone = route53.HostedZone.fromLookup(this, "Zone", {
+        domainName: 'nichole.is',
+      });
+
+      new route53.ARecord(this, "SiteAliasRecord", {
+        recordName: 'cdk.nichole.is',
+        target: route53.RecordTarget.fromAlias(
+          new targets.CloudFrontTarget(distribution)
+        ),
+        zone,
+      })
+
+
   }
 }
