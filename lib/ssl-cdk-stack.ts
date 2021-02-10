@@ -1,11 +1,9 @@
 import * as cdk from '@aws-cdk/core';
 import { ValidationMethod } from "@aws-cdk/aws-certificatemanager";
 import * as cm from '@aws-cdk/aws-certificatemanager';
-import { CloudFrontWebDistribution } from '@aws-cdk/aws-cloudfront'
 import * as cloudfront from '@aws-cdk/aws-cloudfront';
 import * as custom from './myconstants';
 import * as route53 from '@aws-cdk/aws-route53';
-import * as targets from '@aws-cdk/aws-route53-targets';
 
 
 export class SslCdkStack extends cdk.Stack {
@@ -68,7 +66,5 @@ export class SslCdkStack extends cdk.Stack {
         domainName: distribution.distributionDomainName,
         recordName: custom.recordName
       })
-
-
   }
 }
