@@ -1,13 +1,12 @@
 import * as cdk from '@aws-cdk/core';
 import { ValidationMethod } from "@aws-cdk/aws-certificatemanager";
 import * as cm from '@aws-cdk/aws-certificatemanager';
-import * as s3 from '@aws-cdk/aws-s3'
-import * as ssm from '@aws-cdk/aws-ssm';
 import { CloudFrontWebDistribution } from '@aws-cdk/aws-cloudfront'
 import * as cloudfront from '@aws-cdk/aws-cloudfront';
-import { bucketRef, account } from './myconstants';
+import { bucketRef, account, cloudfrontComment } from './myconstants';
 import * as route53 from '@aws-cdk/aws-route53';
 import * as targets from '@aws-cdk/aws-route53-targets';
+import console = require('console');
 
 
 const domainName = "nichole.is";
@@ -32,36 +31,19 @@ export class SslCdkStack extends cdk.Stack {
     });
 
     //CloudFront Distribution 
-    // const distribution = new CloudFrontWebDistribution(this, 'cdk-example-cfront', {
-    //   originConfigs: [
-    //     {
-    //       s3OriginSource: {
-    //         s3BucketSource: sourceBucket
-    //       },
-    //       behaviors : [ {isDefaultBehavior: true}]
-    //     }
-    //   ],
-    //   aliasConfiguration: {
-    //     acmCertRef: certificateArn,
-    //     names: ['cdk-example.awsexamples.dev']
-    //   }
-    // });
-    const sourceBucket = new s3.Bucket(this, 'TestBucket',{
-            versioned: false,
-            removalPolicy: cdk.RemovalPolicy.DESTROY
-          });
 
     const distribution = new cloudfront.CloudFrontWebDistribution(
       this,
       "Distribution",
       {
         viewerCertificate: {
-          aliases: ['cdk.nichole.is'],
+          aliases: ['ablink.nichole.is', 'ablinks.nichole.is'],
           props: {
             acmCertificateArn: certificateArn,
             sslSupportMethod: "sni-only",
           },
         },
+        comment: cloudfrontComment,
         originConfigs: [
           {
             customOriginSource: {
@@ -77,12 +59,19 @@ export class SslCdkStack extends cdk.Stack {
         domainName: 'nichole.is',
       });
 
-      new route53.ARecord(this, "SiteAliasRecord", {
-        recordName: 'cdk.nichole.is',
-        target: route53.RecordTarget.fromAlias(
-          new targets.CloudFrontTarget(distribution)
-        ),
-        zone,
+      // new route53.ARecord(this, "SiteAliasRecord", {
+      //   recordName: 'ablink.nichole.is',
+      //   target: route53.RecordTarget.fromAlias(
+      //     new targets.CloudFrontTarget(distribution)
+      //   ),
+      //   zone,
+      // })
+
+      new route53.CnameRecord(this, "SiteAliasRecord", {
+        zone: zone,
+        domainName: distribution.distributionDomainName,
+        recordName: 'ablink.nichole.is',
+        comment: 'this is a test comment'
       })
 
 
