@@ -28,23 +28,22 @@ export class SslCdkStack extends cdk.Stack {
     // Save certificate arn in a variable to tie in with the CloudFront Distribution
     const certificateArn = certificate.certificateArn;
 
-    new cdk.CfnOutput(this, "CertificateArn", {
-      value: certificateArn,
-    });
 
     //CloudFront Distribution 
-
     const distribution = new cloudfront.CloudFrontWebDistribution(
       this,
       "Distribution",
       {
         viewerCertificate: {
-          aliases: ['ablink.nichole.is', 'ablinks.nichole.is'],
+          // In constants file: cloudfrontAliases = []
+          aliases: custom.cloudfrontAliases,
           props: {
             acmCertificateArn: certificateArn,
+            // Accepting HTTPS connections from only viewers that support SNI (recommended)
             sslSupportMethod: "sni-only",
           },
         },
+        // Optional comment
         comment: custom.cloudfrontComment,
         originConfigs: [
           {
@@ -65,6 +64,7 @@ export class SslCdkStack extends cdk.Stack {
       // Creating CNAME record, routing traffic to CloudFront Distribution
       new route53.CnameRecord(this, "SiteAliasRecord", {
         zone: zone,
+        // domainName should be the CloudFront Distro name - routes traffic to it
         domainName: distribution.distributionDomainName,
         recordName: custom.recordName
       })
