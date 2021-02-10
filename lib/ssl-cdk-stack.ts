@@ -56,7 +56,7 @@ export class SslCdkStack extends cdk.Stack {
 
       // Route53 alias record for the CloudFront distribution
       const zone = route53.HostedZone.fromLookup(this, "Zone", {
-        domainName: 'nichole.is',
+        domainName: custom.ownDomainName,
       });
 
       // Creating CNAME record, routing traffic to CloudFront Distribution
